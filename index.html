@@ -190,7 +190,10 @@
     <h2 id="modal-title">새 항목 추가</h2>
     <div class="form-group"><label>병원명</label><input type="text" id="f-hospital" placeholder="병원명"></div>
     <div class="form-group"><label>원장님 성함</label><input type="text" id="f-doctor" placeholder="원장님 성함"></div>
-    <div class="form-group"><label>담당자</label><input type="text" id="f-manager" placeholder="리스회사 담당자"></div>
+    <div class="form-group"><label>담당자</label>
+    <input type="text" id="f-manager" list="manager-list" placeholder="선택 또는 직접 입력" autocomplete="off">
+    <datalist id="manager-list"></datalist>
+    </div>
     <div class="form-group"><label>금액 (원)</label><input type="number" id="f-amount" placeholder="예: 5000000"></div>
     <div class="form-group"><label>메모</label><textarea id="f-notes" placeholder="추가 메모"></textarea></div>
     <div class="modal-actions">
@@ -220,6 +223,11 @@ const JSONBIN_KEY    = '$2a$10$pq9xquHfmZLTaXFITDQ4UeETymFWT9fGNsNjNajTeklAVJ6OS
 const JSONBIN_URL    = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 const ADMIN_PIN      = '1234';        // ← 원하는 PIN으로 변경하세요
 const POLL_MS        = 15000;
+const MANAGER_KEY    = 'lease-managers';
+const DEFAULT_MANAGERS = [
+  '하나캐피탈 윤선도','오릭스 김종우','오릭스 신덕현',
+  '우리캐피탈 박인진','오릭스 김훈성','롯데 이양범','하나캐피탈 김훈'
+];
 
 let data        = [];
 let isAdmin     = false;
@@ -237,6 +245,30 @@ function fmtTime(iso) {
 function setSyncDot(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot ' + state;
   document.getElementById('sync-label').textContent = label;
+}
+
+// ── 담당자 목록 ──────────────────────────────────────────
+function loadManagers() {
+  const raw = localStorage.getItem(MANAGER_KEY);
+  return raw ? JSON.parse(raw) : [...DEFAULT_MANAGERS];
+}
+function saveManagers(list) {
+  localStorage.setItem(MANAGER_KEY, JSON.stringify(list));
+}
+function refreshDatalist() {
+  const list = loadManagers();
+  const dl = document.getElementById('manager-list');
+  if (!dl) return;
+  dl.innerHTML = list.map(m => `<option value="${m}">`).join('');
+}
+function addManagerIfNew(name) {
+  if (!name) return;
+  const list = loadManagers();
+  if (!list.includes(name)) {
+    list.push(name);
+    saveManagers(list);
+    refreshDatalist();
+  }
 }
 
 // ── JSONBin 클라우드 ─────────────────────────────────────
@@ -395,6 +427,7 @@ function openModal(id = null) {
   document.getElementById('f-manager').value  = d ? (d.manager||'') : '';
   document.getElementById('f-amount').value   = d ? (d.amount||'')  : '';
   document.getElementById('f-notes').value    = d ? (d.notes||'')   : '';
+  refreshDatalist();
   document.getElementById('modal-bg').classList.add('open');
   setTimeout(() => document.getElementById('f-hospital').focus(), 50);
 }
@@ -409,6 +442,7 @@ function saveItem() {
   const manager = document.getElementById('f-manager').value.trim();
   const amount  = document.getElementById('f-amount').value.trim();
   const notes   = document.getElementById('f-notes').value.trim();
+  addManagerIfNew(manager);
   if (editingId) Object.assign(find(editingId), { hospital, doctor, manager, amount, notes });
   else data.push(newItem(hospital, doctor, manager, amount, notes));
   cloudSave(); render(); closeModal();
@@ -430,7 +464,7 @@ document.addEventListener('keydown', e => {
   await cloudLoad();
   document.getElementById('loading-overlay').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  if (location.search.includes('admin')) {
+  if (location.hash.includes('admin') || location.search.includes('admin')) {
     // ?admin URL이면 PIN 입력창 표시
     document.getElementById('pin-modal-bg').classList.add('open');
     setTimeout(() => document.getElementById('pin-input').focus(), 100);
