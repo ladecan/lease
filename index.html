@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리스 관리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e0ddd5;
+    --text: #1a1a1a;
+    --text-muted: #888;
+    --text-dim: #bbb;
+    --accent: #3d6b2f;
+    --accent-dim: rgba(61, 107, 47, 0.08);
+    --red: #d94f4f;
+    --yellow: #c47f00;
+    --blue: #2d6fa3;
+    --done: #ccc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    padding: 32px 40px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .header-left .sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .stat-num.accent { color: var(--accent); }
+  .stat-num.muted { color: var(--text-muted); }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  /* Toolbar */
+  .toolbar {
+    padding: 16px 40px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px 8px 32px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus { border-color: var(--accent); }
+
+  .search-wrap .icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+  .spacer { flex: 1; }
+
+  .btn-add {
+    padding: 8px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { opacity: 0.85; }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    padding: 24px 40px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0 16px 12px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th:first-child { padding-left: 0; width: 36px; }
+  th:last-child { width: 100px; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:hover { background: var(--surface); }
+
+  tbody tr.done {
+    opacity: 0.35;
+  }
+
+  tbody tr.done td { text-decoration: line-through; color: var(--text-muted); }
+  tbody tr.done td:first-child { text-decoration: none; }
+  tbody tr.done .status-badge { text-decoration: none; }
+
+  td {
+    padding: 13px 16px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  td:first-child { padding-left: 0; }
+
+  .hospital-name {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .manager-name {
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .status-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .s-전송완료 { background: rgba(45,111,163,0.1); color: var(--blue); }
+  .s-전송완료::before { background: var(--blue); }
+
+  .s-계산서발행전 { background: rgba(196,127,0,0.1); color: var(--yellow); }
+  .s-계산서발행전::before { background: var(--yellow); }
+
+  .s-입금전 { background: rgba(217,79,79,0.1); color: var(--red); }
+  .s-입금전::before { background: var(--red); }
+
+  .s-완료 { background: rgba(61,107,47,0.1); color: var(--accent); }
+  .s-완료::before { background: var(--accent); }
+
+  .s-기타 { background: rgba(0,0,0,0.05); color: var(--text-muted); }
+  .s-기타::before { background: var(--text-muted); }
+
+  /* Actions */
+  .actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
+
+  .check-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .check-btn:hover { border-color: var(--accent); }
+  .check-btn.checked { background: var(--accent); border-color: var(--accent); }
+  .check-btn.checked::after { content: '✓'; font-size: 11px; color: #fff; font-weight: 700; }
+
+  /* Empty */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* Modal */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-bg.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 460px;
+    animation: pop 0.15s ease;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+
+  .form-group select option { background: var(--surface2); }
+
+  .form-group textarea { resize: vertical; min-height: 72px; }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .btn-cancel {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+
+  .btn-save {
+    padding: 8px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-save:hover { opacity: 0.85; }
+
+  /* Show done toggle */
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .toggle {
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--border);
+    position: relative;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .toggle.on { background: var(--accent); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    transition: left 0.15s;
+  }
+
+  .toggle.on::after { left: 17px; }
+
+  .notes-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>리스 관리</h1>
+    <div class="sub" id="updated-at">—</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-num accent" id="stat-active">—</div>
+      <div class="stat-label">진행중</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-num muted" id="stat-done">—</div>
+      <div class="stat-label">완료</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-num muted" id="stat-total">—</div>
+      <div class="stat-label">전체</div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="icon">⌕</span>
+    <input type="text" id="search" placeholder="병원명, 담당자 검색…">
+  </div>
+  <div class="filter-group" id="filter-group">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="전송완료">서류전송완료</button>
+    <button class="filter-btn" data-filter="계산서발행전">계산서발행전</button>
+    <button class="filter-btn" data-filter="입금전">입금전</button>
+    <button class="filter-btn" data-filter="완료">완료</button>
+  </div>
+  <div class="spacer"></div>
+  <label class="toggle-label" onclick="toggleShowDone()">
+    <div class="toggle" id="done-toggle"></div>
+    완료 보기
+  </label>
+  <button class="btn-add" onclick="openModal()">＋ 추가</button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>병원명</th>
+        <th>담당자</th>
+        <th>상태</th>
+        <th>메모</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">항목이 없습니다.</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
+  <div class="modal">
+    <h2 id="modal-title">새 항목 추가</h2>
+    <div class="form-group">
+      <label>병원명</label>
+      <input type="text" id="f-hospital" placeholder="병원명">
+    </div>
+    <div class="form-group">
+      <label>담당자</label>
+      <input type="text" id="f-manager" placeholder="리스회사 담당자">
+    </div>
+    <div class="form-group">
+      <label>상태</label>
+      <select id="f-status">
+        <option value="전송완료">서류전송완료</option>
+        <option value="계산서발행전">계산서발행전</option>
+        <option value="입금전">입금전</option>
+        <option value="완료">완료</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>메모</label>
+      <textarea id="f-notes" placeholder="추가 메모"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveItem()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'candela-lease-v1';
+
+// 초기 데이터 (Notion에서 가져온 데이터)
+const INITIAL_DATA = [
+  { hospital: '톡스앤필의원 강남', manager: '김의신', status: '입금전', notes: '', done: true },
+  { hospital: '스노우의원 강남(남소영)', manager: 'BNK 전준민', status: '계산서발행전', notes: '', done: true },
+  { hospital: '뷰티드의원 광양 1.0 pico', manager: '정준식', status: '입금전', notes: '', done: true },
+  { hospital: '밴스의원 진주', manager: '정준식', status: '입금전', notes: '', done: true },
+  { hospital: '리버스의원 분당', manager: '배정열', status: '계산서발행전', notes: '1월 안으로 발행 필요', done: true },
+  { hospital: '더올림성형외과의원 대구', manager: '정준식', status: '계산서발행전', notes: '2월에 진행예정', done: true },
+  { hospital: '셀린의원 홍대', manager: '김훈성', status: '계산서발행전', notes: '', done: true },
+  { hospital: '더리즈의원 강남', manager: '정준태(메리츠)', status: '기타', notes: '반환 필요(리스 완료)', done: true },
+  { hospital: '라벨라의원 홍대', manager: '메리트 정준태', status: '계산서발행전', notes: '등기 보낼것', done: true },
+  { hospital: '에테르나의원 박규리', manager: '하나캐피탈 김훈', status: '입금전', notes: '', done: true },
+  { hospital: '밴스의원 충주', manager: '정준식', status: '계산서발행전', notes: '', done: true },
+  { hospital: '셀린의원 수원망포', manager: '메리츠 정준태', status: '완료', notes: '', done: true },
+  { hospital: '닥터에버스 분당', manager: '완료', status: '완료', notes: '', done: true },
+  { hospital: '이유성형외과 울산', manager: '황명섭', status: '완료', notes: '', done: true },
+  { hospital: '스노우의원 수원', manager: 'BNK 전준민', status: '기타', notes: '2월에나 납품 예정', done: true },
+  { hospital: '더올림피부과의원 강남', manager: '정준식', status: '완료', notes: '입금', done: true },
+  { hospital: '스노우의원 강남', manager: 'BNK', status: '완료', notes: '', done: true },
+  { hospital: '스페이드의원 강남', manager: 'BNK 이성주', status: '완료', notes: '', done: true },
+  { hospital: '밴스의원 충주', manager: 'BNK 정준식', status: '전송완료', notes: '계산서 전송 완료', done: true },
+  { hospital: '라벨라의원 홍대', manager: '메리츠 정준태', status: '완료', notes: '', done: true },
+  { hospital: '리버스의원 분당', manager: 'BNK 배정열', status: '전송완료', notes: '계산서 전송 완료', done: true },
+  { hospital: '스노우의원 수원', manager: 'BNK 전준민', status: '기타', notes: '3월에 납품 예정', done: true },
+  { hospital: '리쥬엘의원 수성', manager: '메리츠 정준태', status: '완료', notes: '', done: true },
+  { hospital: '이승재 원장(뷰티라운지의원 동탄)', manager: '오릭스 신덕현 차장', status: '전송완료', notes: '모두 전송 완료', done: true },
+  { hospital: '스노우의원 대전', manager: '오릭스 김훈성', status: '완료', notes: '', done: true },
+  { hospital: '아가파의원 김포', manager: '하나캐피탈', status: '완료', notes: '', done: true },
+  { hospital: '유파인의원 천안', manager: '하나 윤선도', status: '전송완료', notes: '모두 전송 완료', done: true },
+  { hospital: '유앤아이의원 창원', manager: '하나 윤미경팀장', status: '전송완료', notes: '모두 전송함', done: true },
+  { hospital: '디렉터의원 강남', manager: '메리츠 정준태', status: '전송완료', notes: '모두 전송 완료', done: true },
+  { hospital: '닥터에버스의원 광교', manager: '오릭스 김훈성', status: '전송완료', notes: '모두 전송 완료', done: true },
+  { hospital: '모어댄의원 의정부', manager: '롯데 이양범', status: '완료', notes: '', done: true },
+  { hospital: '뷰티온의원 성남신흥', manager: '오릭스 김훈성', status: '전송완료', notes: '서류전송 완료', done: true },
+  { hospital: '닥터디자이너 광주 VBP', manager: '오릭스 감종우', status: '전송완료', notes: '모두 전송 완료', done: true },
+  { hospital: '오체안 신사', manager: '하나 김훈', status: '완료', notes: '', done: true },
+  { hospital: '밴스의원 야탑', manager: '하나캐피탈 신애란', status: '전송완료', notes: '전송 완료', done: true },
+  { hospital: '모던스탠다드의원 신논현', manager: '롯데 이양범', status: '전송완료', notes: '전송 완료', done: true },
+  { hospital: '스노우의원 천안', manager: '메리츠 정준태', status: '기타', notes: '계약금 5백만 반환 해야', done: true },
+  { hospital: '리트의원 송도', manager: '김훈성 오릭스', status: '전송완료', notes: '전송완료', done: true },
+  { hospital: '닥터에버스의원 건대', manager: '오릭스 김훈성 / 하나 허준', status: '전송완료', notes: '', done: true },
+  { hospital: '스노우의원 수원', manager: 'BNK 전준민', status: '완료', notes: '', done: true },
+  { hospital: '필스토리의원 군산 GMPP', manager: '오릭스 김종우', status: '기타', notes: '납품 아직 안 됨', done: true },
+  { hospital: '뷰티온의원 돌곶이', manager: '하나 윤선도', status: '전송완료', notes: '', done: false },
+  { hospital: '톡스앤필의원 홍대', manager: '하나 윤선도', status: '전송완료', notes: '', done: false },
+  { hospital: '뮤토엘의원 용산', manager: '하나 윤선도', status: '전송완료', notes: '', done: false },
+  { hospital: '모린의원 부산', manager: '오릭스 신덕현', status: '전송완료', notes: '', done: false },
+  { hospital: '서울라온의원', manager: '우리캐피탈 박인진 과장님', status: '전송완료', notes: '', done: false },
+  { hospital: '잇츠미의원 안성', manager: '우리 박인진', status: '전송완료', notes: '1억 5천', done: false },
+  { hospital: '뷰티온의원 서산', manager: '오릭스 김훈성', status: '전송완료', notes: '', done: false },
+  { hospital: '서울뉴라인의원 제주', manager: '롯데 이양범', status: '계산서발행전', notes: '', done: false },
+  { hospital: '유앤아이의원 강남', manager: '하나 윤선도', status: '계산서발행전', notes: '', done: false },
+];
+
+let data = [];
+let editingId = null;
+let currentFilter = 'all';
+let showDone = false;
+
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    data = JSON.parse(raw);
+  } else {
+    data = INITIAL_DATA.map((d, i) => ({ ...d, id: i + 1 }));
+    save();
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getStatusClass(s) {
+  if (s === '전송완료') return 's-전송완료';
+  if (s === '계산서발행전') return 's-계산서발행전';
+  if (s === '입금전') return 's-입금전';
+  if (s === '완료') return 's-완료';
+  return 's-기타';
+}
+
+function getStatusLabel(s) {
+  if (s === '전송완료') return '서류전송완료';
+  return s;
+}
+
+function render() {
+  const query = document.getElementById('search').value.trim().toLowerCase();
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+
+  let filtered = data.filter(d => {
+    if (!showDone && d.done) return false;
+    if (currentFilter !== 'all' && d.status !== currentFilter) return false;
+    if (query && !d.hospital.toLowerCase().includes(query) && !d.manager.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(d => `
+      <tr class="${d.done ? 'done' : ''}" data-id="${d.id}">
+        <td>
+          <button class="check-btn ${d.done ? 'checked' : ''}" onclick="toggleDone(${d.id})" title="완료 처리"></button>
+        </td>
+        <td class="hospital-name">${esc(d.hospital)}</td>
+        <td class="manager-name">${esc(d.manager)}</td>
+        <td><span class="status-badge ${getStatusClass(d.status)}">${getStatusLabel(d.status)}</span></td>
+        <td><span class="notes-text" title="${esc(d.notes)}">${esc(d.notes) || '<span style="color:var(--text-dim)">—</span>'}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" onclick="editItem(${d.id})" title="수정">✎</button>
+            <button class="btn-icon del" onclick="deleteItem(${d.id})" title="삭제">✕</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Stats
+  const active = data.filter(d => !d.done).length;
+  const done = data.filter(d => d.done).length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-total').textContent = data.length;
+
+  // Updated
+  const now = new Date();
+  document.getElementById('updated-at').textContent =
+    `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleDone(id) {
+  const d = data.find(x => x.id === id);
+  if (d) { d.done = !d.done; save(); render(); }
+}
+
+function deleteItem(id) {
+  if (!confirm('삭제할까요?')) return;
+  data = data.filter(x => x.id !== id);
+  save(); render();
+}
+
+function openModal(id = null) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = id ? '수정' : '새 항목 추가';
+  if (id) {
+    const d = data.find(x => x.id === id);
+    document.getElementById('f-hospital').value = d.hospital;
+    document.getElementById('f-manager').value = d.manager;
+    document.getElementById('f-status').value = d.status;
+    document.getElementById('f-notes').value = d.notes;
+  } else {
+    document.getElementById('f-hospital').value = '';
+    document.getElementById('f-manager').value = '';
+    document.getElementById('f-status').value = '전송완료';
+    document.getElementById('f-notes').value = '';
+  }
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('f-hospital').focus();
+}
+
+function editItem(id) { openModal(id); }
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function closeModalBg(e) { if (e.target === document.getElementById('modal-bg')) closeModal(); }
+
+function saveItem() {
+  const hospital = document.getElementById('f-hospital').value.trim();
+  const manager = document.getElementById('f-manager').value.trim();
+  const status = document.getElementById('f-status').value;
+  const notes = document.getElementById('f-notes').value.trim();
+  if (!hospital) { document.getElementById('f-hospital').focus(); return; }
+
+  if (editingId) {
+    const d = data.find(x => x.id === editingId);
+    Object.assign(d, { hospital, manager, status, notes });
+  } else {
+    const newId = data.length ? Math.max(...data.map(x => x.id)) + 1 : 1;
+    data.push({ id: newId, hospital, manager, status, notes, done: false });
+  }
+  save(); render(); closeModal();
+}
+
+function toggleShowDone() {
+  showDone = !showDone;
+  document.getElementById('done-toggle').classList.toggle('on', showDone);
+  render();
+}
+
+// Filter buttons
+document.getElementById('filter-group').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.filter;
+  render();
+});
+
+// Search
+document.getElementById('search').addEventListener('input', render);
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
+});
+
+load();
+render();
+</script>
+</body>
+</html>
