@@ -203,19 +203,7 @@
   </div>
 </div>
 
-<!-- PIN modal (admin only) -->
-<div class="modal-bg" id="pin-modal-bg">
-  <div class="modal">
-    <h2>관리자 로그인</h2>
-    <p class="pin-hint">PIN을 입력하세요.</p>
-    <input type="password" class="pin-input" id="pin-input" maxlength="6" placeholder="••••" oninput="clearPinErr()" onkeydown="if(event.key==='Enter')submitPin()">
-    <div class="pin-error" id="pin-error"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="enterReadonly()">취소</button>
-      <button class="btn-save" onclick="submitPin()">로그인</button>
-    </div>
-  </div>
-</div>
+
 
 <script>
 const JSONBIN_ID     = '69e8681d856a6821895d0286';
@@ -465,11 +453,13 @@ document.addEventListener('keydown', e => {
   document.getElementById('loading-overlay').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   if (location.hash.includes('admin') || location.search.includes('admin')) {
-    // ?admin URL이면 PIN 입력창 표시
-    document.getElementById('pin-modal-bg').classList.add('open');
-    setTimeout(() => document.getElementById('pin-input').focus(), 100);
+    // #admin URL이면 바로 관리자 모드
+    isAdmin = true;
+    document.getElementById('btn-add').style.display = '';
+    document.getElementById('readonly-banner').style.display = 'none';
+    render();
   } else {
-    // 일반 URL이면 바로 읽기 전용
+    // 일반 URL이면 읽기 전용
     enterReadonly();
   }
 })();
