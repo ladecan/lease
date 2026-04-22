@@ -7,42 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e0ddd5;
-    --text: #1a1a1a;
-    --text-muted: #999;
-    --text-dim: #ccc;
-    --accent: #3d6b2f;
-    --red: #d94f4f;
-    --yellow: #c47f00;
-    --blue: #2d6fa3;
+    --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0efe9;
+    --border: #e0ddd5; --text: #1a1a1a; --text-muted: #999;
+    --text-dim: #ccc; --accent: #3d6b2f; --red: #d94f4f;
+    --yellow: #c47f00; --blue: #2d6fa3;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  .header {
-    padding: 28px 36px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-    background: var(--surface);
-  }
-
+  .header { padding: 28px 36px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; background: var(--surface); }
   .header-left h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
   .header-left .sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 3px; }
-
   .stat-row { display: flex; gap: 20px; align-items: center; }
   .stat { text-align: right; }
   .stat-num { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; line-height: 1; }
@@ -51,223 +26,101 @@
   .stat-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
   .stat-divider { width: 1px; height: 28px; background: var(--border); }
 
-  .tabs {
-    display: flex;
-    padding: 0 36px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
+  .readonly-banner { background: #fffbe6; border-bottom: 1px solid #f0d080; padding: 9px 36px; font-size: 12px; color: #7a5c00; display: flex; align-items: center; gap: 6px; }
 
-  .tab {
-    padding: 11px 18px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    user-select: none;
-  }
-
+  .tabs { display: flex; padding: 0 36px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .tab { padding: 11px 18px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; user-select: none; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  .toolbar {
-    padding: 12px 36px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
-
+  .toolbar { padding: 12px 36px; display: flex; gap: 10px; align-items: center; background: var(--surface2); border-bottom: 1px solid var(--border); }
   .search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 280px; }
-  .search-wrap input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 7px 12px 7px 30px;
-    font-size: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+  .search-wrap input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 12px 7px 30px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; border-radius: 6px; outline: none; transition: border-color 0.15s; }
   .search-wrap input:focus { border-color: var(--accent); }
   .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; pointer-events: none; }
-
   .spacer { flex: 1; }
 
-  .btn-add {
-    padding: 7px 16px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    white-space: nowrap;
-  }
+  .btn-add { padding: 7px 16px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; white-space: nowrap; }
   .btn-add:hover { opacity: 0.85; }
 
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); display: inline-block; transition: background 0.3s; }
+  .sync-dot.syncing { background: var(--yellow); }
+  .sync-dot.ok { background: var(--accent); }
+  .sync-dot.err { background: var(--red); }
+
   .table-wrap { overflow-x: auto; padding: 20px 36px; }
-
-  table { width: 100%; border-collapse: collapse; min-width: 860px; }
-
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
   thead tr { border-bottom: 2px solid var(--border); }
-
-  th {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 0.7px;
-    text-transform: uppercase;
-    padding: 0 10px 10px;
-    text-align: center;
-    white-space: nowrap;
-    line-height: 1.6;
-  }
+  th { font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.7px; text-transform: uppercase; padding: 0 10px 10px; text-align: center; white-space: nowrap; line-height: 1.6; }
   th.left { text-align: left; }
   th:first-child { padding-left: 0; width: 36px; }
-
   tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
   tbody tr:hover { background: rgba(0,0,0,0.02); }
-
-  td {
-    padding: 10px 10px;
-    font-size: 13px;
-    vertical-align: middle;
-    text-align: center;
-  }
+  td { padding: 10px 10px; font-size: 13px; vertical-align: middle; text-align: center; }
   td.left { text-align: left; }
   td:first-child { padding-left: 0; }
 
   .hospital-name { font-weight: 500; color: var(--text); }
-  .manager-name { font-size: 12px; color: var(--text-muted); }
+  .sub-name { font-size: 12px; color: var(--text-muted); }
+  .amount-cell { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+  .notes-text { font-size: 12px; color: var(--text-muted); max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .notes-text {
-    font-size: 12px;
-    color: var(--text-muted);
-    max-width: 140px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* 3-state button group */
   .cell-btn-group { display: flex; gap: 3px; justify-content: center; }
-
-  .cell-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 5px;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-    color: var(--text-muted);
-    font-weight: 600;
-    line-height: 1;
-  }
-  .cell-btn:hover { border-color: #999; color: var(--text); }
+  .cell-btn { width: 26px; height: 26px; border-radius: 5px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; color: var(--text-muted); font-weight: 600; line-height: 1; }
+  .cell-btn:not(:disabled):hover { border-color: #999; color: var(--text); }
   .cell-btn.ax { background: rgba(217,79,79,0.1); border-color: var(--red); color: var(--red); }
   .cell-btn.av { background: rgba(196,127,0,0.1); border-color: var(--yellow); color: var(--yellow); }
   .cell-btn.ao { background: rgba(61,107,47,0.12); border-color: var(--accent); color: var(--accent); }
+  .cell-btn:disabled, .tog:disabled { cursor: default; opacity: 0.75; }
 
-  /* 2-state toggle */
-  .tog {
-    width: 26px;
-    height: 26px;
-    border-radius: 5px;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-    color: var(--text-dim);
-    font-weight: 600;
-  }
-  .tog:hover { border-color: var(--accent); }
+  .tog { width: 26px; height: 26px; border-radius: 5px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; color: var(--text-dim); font-weight: 600; }
+  .tog:not(:disabled):hover { border-color: var(--accent); }
   .tog.on { background: rgba(61,107,47,0.12); border-color: var(--accent); color: var(--accent); }
 
   .row-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); }
-
   .actions { display: flex; gap: 3px; justify-content: center; }
-  .btn-icon {
-    width: 26px; height: 26px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    transition: all 0.12s;
-  }
+  .btn-icon { width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.12s; }
   .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
   .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
 
   .empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
 
+  /* Loading */
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 200; font-size: 13px; color: var(--text-muted); }
+  .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* Modal */
-  .modal-bg {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
   .modal-bg.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px;
-    width: 100%;
-    max-width: 400px;
-    animation: pop 0.15s ease;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; width: 100%; max-width: 400px; animation: pop 0.15s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
   @keyframes pop { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .modal h2 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
   .form-group { margin-bottom: 12px; }
   .form-group label { display: block; font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
-  .form-group input, .form-group textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 10px;
-    font-size: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+  .form-group input, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; border-radius: 6px; outline: none; transition: border-color 0.15s; }
   .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
   .form-group textarea { resize: vertical; min-height: 60px; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
   .btn-cancel { padding: 7px 14px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save { padding: 7px 18px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save:hover { opacity: 0.85; }
+
+  /* PIN */
+  .pin-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.7; }
+  .pin-input { width: 100%; text-align: center; font-size: 28px; font-family: 'DM Mono', monospace; letter-spacing: 10px; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; outline: none; color: var(--text); transition: border-color 0.15s; }
+  .pin-input:focus { border-color: var(--accent); }
+  .pin-error { font-size: 12px; color: var(--red); margin-top: 8px; min-height: 18px; }
 </style>
 </head>
 <body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div>데이터 불러오는 중...</div>
+</div>
+
+<div id="app" style="display:none">
 
 <div class="header">
   <div class="header-left">
@@ -275,21 +128,17 @@
     <div class="sub" id="updated-at">—</div>
   </div>
   <div class="stat-row">
-    <div class="stat">
-      <div class="stat-num accent" id="stat-active">—</div>
-      <div class="stat-label">진행중</div>
-    </div>
+    <div class="stat"><div class="stat-num accent" id="stat-active">—</div><div class="stat-label">진행중</div></div>
     <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num muted" id="stat-done">—</div>
-      <div class="stat-label">완료</div>
-    </div>
+    <div class="stat"><div class="stat-num muted" id="stat-done">—</div><div class="stat-label">완료</div></div>
     <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num muted" id="stat-total">—</div>
-      <div class="stat-label">전체</div>
-    </div>
+    <div class="stat"><div class="stat-num muted" id="stat-total">—</div><div class="stat-label">전체</div></div>
   </div>
+</div>
+
+<div class="readonly-banner" id="readonly-banner" style="display:none">
+  👁 읽기 전용 — 최신 현황이 자동으로 표시됩니다.
+  <span style="margin-left:auto;opacity:0.6;font-size:11px" id="last-sync-label"></span>
 </div>
 
 <div class="tabs">
@@ -300,10 +149,14 @@
 <div class="toolbar">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="병원명, 담당자 검색…">
+    <input type="text" id="search" placeholder="병원명, 원장님, 담당자 검색…">
   </div>
   <div class="spacer"></div>
-  <button class="btn-add" onclick="openModal()">＋ 추가</button>
+  <span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px">
+    <span class="sync-dot" id="sync-dot"></span>
+    <span id="sync-label"></span>
+  </span>
+  <button class="btn-add" id="btn-add" onclick="openModal()" style="display:none">＋ 추가</button>
 </div>
 
 <div class="table-wrap">
@@ -312,7 +165,9 @@
       <tr>
         <th></th>
         <th class="left">병원명</th>
+        <th class="left">원장님</th>
         <th class="left">담당자</th>
+        <th>금액</th>
         <th>발주수락서<br><span style="font-size:9px;font-weight:400;opacity:0.7;letter-spacing:0">✕없음 &nbsp;✔필요 &nbsp;○전송</span></th>
         <th>계약서</th>
         <th>세금계산서</th>
@@ -327,21 +182,17 @@
   <div class="empty" id="empty" style="display:none">항목이 없습니다.</div>
 </div>
 
+</div><!-- /app -->
+
+<!-- Item modal -->
 <div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
   <div class="modal">
     <h2 id="modal-title">새 항목 추가</h2>
-    <div class="form-group">
-      <label>병원명</label>
-      <input type="text" id="f-hospital" placeholder="병원명">
-    </div>
-    <div class="form-group">
-      <label>담당자</label>
-      <input type="text" id="f-manager" placeholder="리스회사 담당자">
-    </div>
-    <div class="form-group">
-      <label>메모</label>
-      <textarea id="f-notes" placeholder="추가 메모"></textarea>
-    </div>
+    <div class="form-group"><label>병원명</label><input type="text" id="f-hospital" placeholder="병원명"></div>
+    <div class="form-group"><label>원장님 성함</label><input type="text" id="f-doctor" placeholder="원장님 성함"></div>
+    <div class="form-group"><label>담당자</label><input type="text" id="f-manager" placeholder="리스회사 담당자"></div>
+    <div class="form-group"><label>금액 (원)</label><input type="number" id="f-amount" placeholder="예: 5000000"></div>
+    <div class="form-group"><label>메모</label><textarea id="f-notes" placeholder="추가 메모"></textarea></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">취소</button>
       <button class="btn-save" onclick="saveItem()">저장</button>
@@ -349,49 +200,130 @@
   </div>
 </div>
 
+<!-- PIN modal -->
+<div class="modal-bg open" id="pin-modal-bg">
+  <div class="modal">
+    <h2>접속 방식 선택</h2>
+    <p class="pin-hint">
+      관리자(균님)라면 PIN을 입력하세요. 수정 권한이 부여됩니다.<br>
+      팀원이라면 <strong>읽기 전용으로 열기</strong>를 눌러주세요. 링크 하나로 항상 최신 현황을 볼 수 있습니다.
+    </p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="6" placeholder="••••" oninput="clearPinErr()" onkeydown="if(event.key==='Enter')submitPin()">
+    <div class="pin-error" id="pin-error"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="enterReadonly()">읽기 전용으로 열기</button>
+      <button class="btn-save" onclick="submitPin()">관리자 로그인</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const STORAGE_KEY = 'candela-lease-v2';
+const JSONBIN_ID     = '69e8681d856a6821895d0286';
+const JSONBIN_KEY    = '$2a$10$pq9xquHfmZLTaXFITDQ4UeETymFWT9fGNsNjNajTeklAVJ6OS3YPi';
+const JSONBIN_URL    = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+const ADMIN_PIN      = '1234';        // ← 원하는 PIN으로 변경하세요
+const POLL_MS        = 15000;
 
-// order: 'none'(필요없음) | 'need'(필요함) | 'sent'(전송완료)
-// return: 'none'(필요없음) | 'need'(반환필요) | 'done'(반환완료)
-// 완료 조건: return === 'none' || return === 'done'
-
-let data = [];
-let editingId = null;
-let currentTab = 'active';
+let data        = [];
+let isAdmin     = false;
+let editingId   = null;
+let currentTab  = 'active';
 
 function isDone(d) { return d.ret === 'none' || d.ret === 'done'; }
-
-function newItem(hospital, manager, notes) {
-  return {
-    id: Date.now() + '_' + Math.floor(Math.random()*10000),
-    hospital, manager, notes,
-    order: 'need',
-    contract: false,
-    tax: false,
-    payment: false,
-    ret: 'need',
-  };
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function find(id) { return data.find(x => x.id === id); }
+function fmtTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function setSyncDot(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = label;
 }
 
-function load() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  data = raw ? JSON.parse(raw) : [];
+// ── JSONBin 클라우드 ─────────────────────────────────────
+async function cloudSave() {
+  setSyncDot('syncing', '저장 중...');
+  try {
+    const payload = { data, updatedAt: new Date().toISOString() };
+    const res = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error();
+    setSyncDot('ok', '저장됨');
+    document.getElementById('updated-at').textContent = fmtTime(payload.updatedAt);
+  } catch(e) {
+    setSyncDot('err', '저장 실패');
+  }
 }
 
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+async function cloudLoad() {
+  try {
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const p = json.record;
+    if (p && p.data) {
+      data = p.data;
+      const t = fmtTime(p.updatedAt);
+      document.getElementById('updated-at').textContent = t;
+      document.getElementById('last-sync-label').textContent = '마지막 업데이트: ' + t;
+    }
+    setSyncDot('ok', '');
+    return true;
+  } catch(e) {
+    setSyncDot('err', '로드 실패');
+    return false;
+  }
+}
 
+// ── PIN ───────────────────────────────────────────────────
+function clearPinErr() { document.getElementById('pin-error').textContent = ''; }
+
+function submitPin() {
+  if (document.getElementById('pin-input').value === ADMIN_PIN) {
+    isAdmin = true;
+    document.getElementById('pin-modal-bg').classList.remove('open');
+    document.getElementById('btn-add').style.display = '';
+    document.getElementById('readonly-banner').style.display = 'none';
+    render();
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN이 올바르지 않습니다.';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function enterReadonly() {
+  isAdmin = false;
+  document.getElementById('pin-modal-bg').classList.remove('open');
+  document.getElementById('readonly-banner').style.display = 'flex';
+  document.getElementById('btn-add').style.display = 'none';
+  render();
+  // 15초마다 최신 데이터 자동 갱신
+  setInterval(async () => { await cloudLoad(); render(); }, POLL_MS);
+}
+
+// ── 렌더 ─────────────────────────────────────────────────
 function render() {
   const query = document.getElementById('search').value.trim().toLowerCase();
-  const tbody = document.getElementById('tbody');
-  const empty = document.getElementById('empty');
-
   const filtered = data.filter(d => {
     if (currentTab === 'active' && isDone(d)) return false;
-    if (currentTab === 'done' && !isDone(d)) return false;
-    if (query && !d.hospital.toLowerCase().includes(query) && !d.manager.toLowerCase().includes(query)) return false;
+    if (currentTab === 'done'   && !isDone(d)) return false;
+    if (query && !d.hospital.toLowerCase().includes(query) &&
+        !(d.doctor||'').toLowerCase().includes(query) &&
+        !(d.manager||'').toLowerCase().includes(query)) return false;
     return true;
   });
+
+  const ro = !isAdmin;
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
@@ -402,119 +334,88 @@ function render() {
       <tr>
         <td><span class="row-num">${i+1}</span></td>
         <td class="left"><div class="hospital-name">${esc(d.hospital)}</div></td>
-        <td class="left"><div class="manager-name">${esc(d.manager)}</div></td>
-        <td>
-          <div class="cell-btn-group">
-            <button class="cell-btn ${d.order==='none'?'ax':''}" onclick="setField('${d.id}','order','none')" title="필요없음">✕</button>
-            <button class="cell-btn ${d.order==='need'?'av':''}" onclick="setField('${d.id}','order','need')" title="필요함">✔</button>
-            <button class="cell-btn ${d.order==='sent'?'ao':''}" onclick="setField('${d.id}','order','sent')" title="전송완료">○</button>
-          </div>
-        </td>
-        <td>
-          <button class="tog ${d.contract?'on':''}" onclick="toggleBool('${d.id}','contract')">${d.contract?'○':'✕'}</button>
-        </td>
-        <td>
-          <button class="tog ${d.tax?'on':''}" onclick="toggleBool('${d.id}','tax')">${d.tax?'○':'✕'}</button>
-        </td>
-        <td>
-          <button class="tog ${d.payment?'on':''}" onclick="toggleBool('${d.id}','payment')">${d.payment?'○':'✕'}</button>
-        </td>
-        <td>
-          <div class="cell-btn-group">
-            <button class="cell-btn ${d.ret==='none'?'ao':''}" onclick="setRet('${d.id}','none')" title="필요없음">✕</button>
-            <button class="cell-btn ${d.ret==='need'?'av':''}" onclick="setRet('${d.id}','need')" title="반환필요">!</button>
-            <button class="cell-btn ${d.ret==='done'?'ao':''}" onclick="setRet('${d.id}','done')" title="반환완료">○</button>
-          </div>
-        </td>
+        <td class="left"><div class="sub-name">${esc(d.doctor)||'<span style="color:var(--text-dim)">—</span>'}</div></td>
+        <td class="left"><div class="sub-name">${esc(d.manager)||'<span style="color:var(--text-dim)">—</span>'}</div></td>
+        <td><div class="amount-cell">${d.amount ? Number(d.amount).toLocaleString()+'원' : '<span style="color:var(--text-dim)">—</span>'}</div></td>
+        <td><div class="cell-btn-group">
+          <button class="cell-btn ${d.order==='none'?'ax':''}" ${ro?'disabled':''} onclick="setField('${d.id}','order','none')" title="필요없음">✕</button>
+          <button class="cell-btn ${d.order==='need'?'av':''}" ${ro?'disabled':''} onclick="setField('${d.id}','order','need')" title="필요함">✔</button>
+          <button class="cell-btn ${d.order==='sent'?'ao':''}" ${ro?'disabled':''} onclick="setField('${d.id}','order','sent')" title="전송완료">○</button>
+        </div></td>
+        <td><button class="tog ${d.contract?'on':''}" ${ro?'disabled':''} onclick="toggleBool('${d.id}','contract')">${d.contract?'○':'✕'}</button></td>
+        <td><button class="tog ${d.tax?'on':''}"      ${ro?'disabled':''} onclick="toggleBool('${d.id}','tax')">${d.tax?'○':'✕'}</button></td>
+        <td><button class="tog ${d.payment?'on':''}"  ${ro?'disabled':''} onclick="toggleBool('${d.id}','payment')">${d.payment?'○':'✕'}</button></td>
+        <td><div class="cell-btn-group">
+          <button class="cell-btn ${d.ret==='none'?'ao':''}" ${ro?'disabled':''} onclick="setRet('${d.id}','none')" title="필요없음">✕</button>
+          <button class="cell-btn ${d.ret==='need'?'av':''}" ${ro?'disabled':''} onclick="setRet('${d.id}','need')" title="반환필요">!</button>
+          <button class="cell-btn ${d.ret==='done'?'ao':''}" ${ro?'disabled':''} onclick="setRet('${d.id}','done')" title="반환완료">○</button>
+        </div></td>
         <td><div class="notes-text" title="${esc(d.notes)}">${esc(d.notes)||'<span style="color:var(--text-dim)">—</span>'}</div></td>
-        <td>
-          <div class="actions">
-            <button class="btn-icon" onclick="editItem('${d.id}')" title="수정">✎</button>
-            <button class="btn-icon del" onclick="deleteItem('${d.id}')" title="삭제">✕</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+        <td>${ro ? '' : `<div class="actions">
+          <button class="btn-icon" onclick="editItem('${d.id}')" title="수정">✎</button>
+          <button class="btn-icon del" onclick="deleteItem('${d.id}')" title="삭제">✕</button>
+        </div>`}</td>
+      </tr>`).join('');
   }
 
-  const active = data.filter(d => !isDone(d)).length;
-  const done = data.filter(d => isDone(d)).length;
-  document.getElementById('stat-active').textContent = active;
-  document.getElementById('stat-done').textContent = done;
-  document.getElementById('stat-total').textContent = data.length;
-
-  const now = new Date();
-  document.getElementById('updated-at').textContent =
-    `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('stat-active').textContent = data.filter(d => !isDone(d)).length;
+  document.getElementById('stat-done').textContent   = data.filter(d =>  isDone(d)).length;
+  document.getElementById('stat-total').textContent  = data.length;
 }
 
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function find(id) { return data.find(x => x.id === id); }
-
+// ── 데이터 조작 ───────────────────────────────────────────
 function setField(id, field, val) {
-  const d = find(id);
-  if (d) { d[field] = val; save(); render(); }
+  if (!isAdmin) return;
+  const d = find(id); if (d) { d[field] = val; cloudSave(); render(); }
 }
-
 function toggleBool(id, field) {
-  const d = find(id);
-  if (d) { d[field] = !d[field]; save(); render(); }
+  if (!isAdmin) return;
+  const d = find(id); if (d) { d[field] = !d[field]; cloudSave(); render(); }
 }
-
 function setRet(id, val) {
-  const d = find(id);
-  if (!d) return;
-  d.ret = val;
-  save();
+  if (!isAdmin) return;
+  const d = find(id); if (!d) return;
+  d.ret = val; cloudSave();
   const nowDone = isDone(d);
-  if (nowDone && currentTab === 'active') {
-    render();
-    setTimeout(() => switchTab('done'), 250);
-  } else if (!nowDone && currentTab === 'done') {
-    render();
-    setTimeout(() => switchTab('active'), 250);
-  } else {
-    render();
-  }
+  if (nowDone && currentTab === 'active')     { render(); setTimeout(() => switchTab('done'), 250); }
+  else if (!nowDone && currentTab === 'done') { render(); setTimeout(() => switchTab('active'), 250); }
+  else render();
 }
-
 function deleteItem(id) {
-  if (!confirm('삭제할까요?')) return;
-  data = data.filter(x => x.id !== id);
-  save(); render();
+  if (!isAdmin || !confirm('삭제할까요?')) return;
+  data = data.filter(x => x.id !== id); cloudSave(); render();
 }
-
+function newItem(hospital, doctor, manager, amount, notes) {
+  return { id: Date.now()+'_'+Math.floor(Math.random()*10000), hospital, doctor, manager, amount, notes, order:'need', contract:false, tax:false, payment:false, ret:'need' };
+}
 function openModal(id = null) {
+  if (!isAdmin) return;
   editingId = id;
   document.getElementById('modal-title').textContent = id ? '수정' : '새 항목 추가';
   const d = id ? find(id) : null;
-  document.getElementById('f-hospital').value = d ? d.hospital : '';
-  document.getElementById('f-manager').value = d ? d.manager : '';
-  document.getElementById('f-notes').value = d ? d.notes : '';
+  document.getElementById('f-hospital').value = d ? d.hospital      : '';
+  document.getElementById('f-doctor').value   = d ? (d.doctor||'')  : '';
+  document.getElementById('f-manager').value  = d ? (d.manager||'') : '';
+  document.getElementById('f-amount').value   = d ? (d.amount||'')  : '';
+  document.getElementById('f-notes').value    = d ? (d.notes||'')   : '';
   document.getElementById('modal-bg').classList.add('open');
   setTimeout(() => document.getElementById('f-hospital').focus(), 50);
 }
-
 function editItem(id) { openModal(id); }
 function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
 function closeModalBg(e) { if (e.target === document.getElementById('modal-bg')) closeModal(); }
-
 function saveItem() {
+  if (!isAdmin) return;
   const hospital = document.getElementById('f-hospital').value.trim();
-  const manager = document.getElementById('f-manager').value.trim();
-  const notes = document.getElementById('f-notes').value.trim();
   if (!hospital) { document.getElementById('f-hospital').focus(); return; }
-  if (editingId) {
-    Object.assign(find(editingId), { hospital, manager, notes });
-  } else {
-    data.push(newItem(hospital, manager, notes));
-  }
-  save(); render(); closeModal();
+  const doctor  = document.getElementById('f-doctor').value.trim();
+  const manager = document.getElementById('f-manager').value.trim();
+  const amount  = document.getElementById('f-amount').value.trim();
+  const notes   = document.getElementById('f-notes').value.trim();
+  if (editingId) Object.assign(find(editingId), { hospital, doctor, manager, amount, notes });
+  else data.push(newItem(hospital, doctor, manager, amount, notes));
+  cloudSave(); render(); closeModal();
 }
-
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
@@ -524,11 +425,17 @@ function switchTab(tab) {
 document.getElementById('search').addEventListener('input', render);
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
+  if ((e.metaKey||e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
 });
 
-load();
-render();
+// ── 시작 ─────────────────────────────────────────────────
+(async () => {
+  await cloudLoad();
+  document.getElementById('loading-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  // PIN 모달에서 포커스
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+})();
 </script>
 </body>
 </html>
