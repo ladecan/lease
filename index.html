@@ -105,12 +105,6 @@
   .btn-cancel { padding: 7px 14px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save { padding: 7px 18px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save:hover { opacity: 0.85; }
-
-  /* PIN */
-  .pin-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.7; }
-  .pin-input { width: 100%; text-align: center; font-size: 28px; font-family: 'DM Mono', monospace; letter-spacing: 10px; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; outline: none; color: var(--text); transition: border-color 0.15s; }
-  .pin-input:focus { border-color: var(--accent); }
-  .pin-error { font-size: 12px; color: var(--red); margin-top: 8px; min-height: 18px; }
 </style>
 </head>
 <body>
@@ -203,13 +197,11 @@
   </div>
 </div>
 
-
-
 <script>
 const JSONBIN_ID     = '69e8681d856a6821895d0286';
 const JSONBIN_KEY    = '$2a$10$pq9xquHfmZLTaXFITDQ4UeETymFWT9fGNsNjNajTeklAVJ6OS3YPi';
 const JSONBIN_URL    = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
-const ADMIN_PIN      = '1234';        // ← 원하는 PIN으로 변경하세요
+const ADMIN_PIN      = '1234';
 const POLL_MS        = 15000;
 const MANAGER_KEY    = 'lease-managers';
 const DEFAULT_MANAGERS = [
@@ -235,7 +227,7 @@ function setSyncDot(state, label) {
   document.getElementById('sync-label').textContent = label;
 }
 
-// ── 담당자 목록 ──────────────────────────────────────────
+// ── 담당자 목록
 function loadManagers() {
   const raw = localStorage.getItem(MANAGER_KEY);
   return raw ? JSON.parse(raw) : [...DEFAULT_MANAGERS];
@@ -259,7 +251,7 @@ function addManagerIfNew(name) {
   }
 }
 
-// ── JSONBin 클라우드 ─────────────────────────────────────
+// ── JSONBin 클라우드
 async function cloudSave() {
   setSyncDot('syncing', '저장 중...');
   try {
@@ -299,34 +291,7 @@ async function cloudLoad() {
   }
 }
 
-// ── PIN ───────────────────────────────────────────────────
-function clearPinErr() { document.getElementById('pin-error').textContent = ''; }
-
-function submitPin() {
-  if (document.getElementById('pin-input').value === ADMIN_PIN) {
-    isAdmin = true;
-    document.getElementById('pin-modal-bg').classList.remove('open');
-    document.getElementById('btn-add').style.display = '';
-    document.getElementById('readonly-banner').style.display = 'none';
-    render();
-  } else {
-    document.getElementById('pin-error').textContent = 'PIN이 올바르지 않습니다.';
-    document.getElementById('pin-input').value = '';
-    document.getElementById('pin-input').focus();
-  }
-}
-
-function enterReadonly() {
-  isAdmin = false;
-  document.getElementById('pin-modal-bg').classList.remove('open');
-  document.getElementById('readonly-banner').style.display = 'flex';
-  document.getElementById('btn-add').style.display = 'none';
-  render();
-  // 15초마다 최신 데이터 자동 갱신
-  setInterval(async () => { await cloudLoad(); render(); }, POLL_MS);
-}
-
-// ── 렌더 ─────────────────────────────────────────────────
+// ── 렌더
 function render() {
   const query = document.getElementById('search').value.trim().toLowerCase();
   const filtered = data.filter(d => {
@@ -380,7 +345,7 @@ function render() {
   document.getElementById('stat-total').textContent  = data.length;
 }
 
-// ── 데이터 조작 ───────────────────────────────────────────
+// ── 데이터 조작
 function setField(id, field, val) {
   if (!isAdmin) return;
   const d = find(id); if (d) { d[field] = val; cloudSave(); render(); }
@@ -447,21 +412,29 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
 });
 
-// ── 시작 ─────────────────────────────────────────────────
+// ── 시작
 (async () => {
   await cloudLoad();
   document.getElementById('loading-overlay').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  if (location.hash.includes('admin') || location.search.includes('admin')) {
-    // #admin URL이면 바로 관리자 모드
+
+  const isAdminUrl = location.hash.includes('admin') || location.search.includes('admin');
+
+  if (isAdminUrl) {
+    // admin URL이면 관리자 모드
     isAdmin = true;
     document.getElementById('btn-add').style.display = '';
     document.getElementById('readonly-banner').style.display = 'none';
-    render();
   } else {
-    // 일반 URL이면 읽기 전용
-    enterReadonly();
+    // 일반 URL이면 즉시 읽기 전용으로 표시
+    isAdmin = false;
+    document.getElementById('readonly-banner').style.display = 'flex';
+    document.getElementById('btn-add').style.display = 'none';
+    // 15초마다 자동 갱신
+    setInterval(async () => { await cloudLoad(); render(); }, POLL_MS);
   }
+
+  render(); // 항상 마지막에 한 번만 render
 })();
 </script>
 </body>
