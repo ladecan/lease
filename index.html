@@ -107,6 +107,8 @@
   .btn-cancel { padding: 7px 14px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save { padding: 7px 18px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
   .btn-save:hover { opacity: 0.85; }
+  .pin-input { width: 100%; text-align: center; font-size:18px; font-family: 'DM Mono', monospace; letter-spacing: 4px; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; outline: none; color: var(--text); transition: border-color 0.15s; }
+  .pin-input:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -180,6 +182,20 @@
 </div>
 
 </div><!-- /app -->
+
+<!-- 비밀번호 모달 -->
+<div class="modal-bg" id="pw-modal-bg">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div style="font-size:28px;margin-bottom:8px">🔒</div>
+    <h2 style="margin-bottom:6px">접근 비밀번호</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">비밀번호를 입력하세요.</p>
+    <input type="password" id="pw-input" class="pin-input" placeholder="••••••••" style="font-size:18px;letter-spacing:4px" onkeydown="if(event.key==='Enter')submitPw()">
+    <div id="pw-error" style="font-size:12px;color:var(--red);margin-top:8px;min-height:18px"></div>
+    <div class="modal-actions" style="justify-content:center;margin-top:16px">
+      <button class="btn-save" onclick="submitPw()">확인</button>
+    </div>
+  </div>
+</div>
 
 <!-- Item modal -->
 <div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
@@ -520,6 +536,30 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
 });
 
+const VIEW_PW      = 'yuna123';
+const PW_COOKIE    = 'lease-auth';
+
+function setCookie(name, val, days) {
+  const exp = new Date(Date.now() + days*864e5).toUTCString();
+  document.cookie = `${name}=${val};expires=${exp};path=/`;
+}
+function getCookie(name) {
+  return document.cookie.split('; ').find(r => r.startsWith(name+'='))?.split('=')[1] || null;
+}
+
+function submitPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === VIEW_PW) {
+    setCookie(PW_COOKIE, '1', 365);
+    document.getElementById('pw-modal-bg').classList.remove('open');
+    document.getElementById('pw-input').value = '';
+  } else {
+    document.getElementById('pw-error').textContent = '비밀번호가 올바르지 않습니다.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
 // ── 시작
 (async () => {
   await cloudLoad();
@@ -535,10 +575,17 @@ document.addEventListener('keydown', e => {
     document.getElementById('btn-email').style.display = 'block';
     document.getElementById('readonly-banner').style.display = 'none';
   } else {
-    // 일반 URL이면 즉시 읽기 전용으로 표시
+    // 일반 URL — 비밀번호 확인
     isAdmin = false;
     document.getElementById('readonly-banner').style.display = 'flex';
     document.getElementById('btn-add').style.display = 'none';
+
+    if (!getCookie(PW_COOKIE)) {
+      // 쿠키 없으면 비밀번호 모달 표시
+      document.getElementById('pw-modal-bg').classList.add('open');
+      setTimeout(() => document.getElementById('pw-input').focus(), 50);
+    }
+
     // 15초마다 자동 갱신
     setInterval(async () => { await cloudLoad(); render(); }, POLL_MS);
   }
