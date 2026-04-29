@@ -42,7 +42,7 @@
 
   .btn-add { padding: 7px 16px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; white-space: nowrap; }
   .btn-add:hover { opacity: 0.85; }
-  .btn-email { padding: 7px 14px; background: transparent; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; white-space: nowrap; display: none; }
+  .btn-email { padding: 7px 14px; background: transparent; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 6px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; white-space: nowrap; }
   .btn-email:hover { background: rgba(45,111,163,0.08); }
 
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); display: inline-block; transition: background 0.3s; }
@@ -152,7 +152,7 @@
     <span class="sync-dot" id="sync-dot"></span>
     <span id="sync-label"></span>
   </span>
-  <button class="btn-email" id="btn-email" onclick="sendEmail()">✉ 현황 공유</button>
+  <button class="btn-email" id="btn-email" onclick="sendEmail()" style="display:none">✉ 현황 공유</button>
   <button class="btn-add" id="btn-add" onclick="openModal()" style="display:none">＋ 추가</button>
 </div>
 
@@ -450,7 +450,7 @@ document.addEventListener('keydown', e => {
     // admin URL이면 관리자 모드
     isAdmin = true;
     document.getElementById('btn-add').style.display = '';
-    document.getElementById('btn-email').style.display = '';
+    document.getElementById('btn-email').style.display = 'block';
     document.getElementById('readonly-banner').style.display = 'none';
   } else {
     // 일반 URL이면 즉시 읽기 전용으로 표시
