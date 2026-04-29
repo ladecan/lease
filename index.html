@@ -422,8 +422,6 @@ function switchTab(tab) {
 function sendEmail() {
   const today = new Date();
   const dateStr = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-
-  // 이번 주 월~오늘
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
   monday.setHours(0,0,0,0);
@@ -434,76 +432,97 @@ function sendEmail() {
     if (!d.contract) missing.push('계약서');
     if (!d.tax) missing.push('세금계산서');
     if (!d.payment) missing.push('입금');
-    return missing.length ? missing.join(', ') : '완료';
+    return missing.length ? missing.join(', ') : '—';
   };
 
-  // 이번주 입금완료 건
-  const paidThisWeek = data.filter(d => {
-    if (!d.payment || !d.paymentDate) return false;
-    return new Date(d.paymentDate) >= monday;
+  const paidThisWeek = data.filter(d => d.payment && d.paymentDate && new Date(d.paymentDate) >= monday);
+  const paidRetDone  = paidThisWeek.filter(d => d.ret === 'done');
+  const paidRetNone  = paidThisWeek.filter(d => d.ret === 'none');
+  const paidRetNeed  = paidThisWeek.filter(d => d.ret === 'need');
+  const active       = data.filter(d => !isDone(d));
+
+  const S = {
+    wrap:   'font-family:맑은 고딕,Apple SD Gothic Neo,sans-serif;font-size:13px;color:#1a1a1a;line-height:1.6;',
+    h2:     'font-size:15px;font-weight:700;margin:24px 0 8px;color:#1a1a1a;',
+    badge:  'display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle;',
+    table:  'width:100%;border-collapse:collapse;margin-bottom:4px;',
+    th:     'background:#f5f4f0;padding:7px 12px;text-align:left;font-size:11px;font-weight:600;color:#666;letter-spacing:0.4px;border-bottom:2px solid #e0ddd5;white-space:nowrap;',
+    td:     'padding:7px 12px;border-bottom:1px solid #eeece6;font-size:12px;color:#1a1a1a;vertical-align:middle;',
+    tdm:    'padding:7px 12px;border-bottom:1px solid #eeece6;font-size:12px;color:#999;vertical-align:middle;',
+    empty:  'padding:12px;color:#aaa;font-size:12px;font-style:italic;',
+    link:   'color:#3d6b2f;font-weight:600;',
+    footer: 'margin-top:24px;padding-top:12px;border-top:1px solid #e0ddd5;font-size:11px;color:#aaa;',
+  };
+
+  const mkTh = (...cols) => `<tr>${cols.map(c=>`<th style="${S.th}">${c}</th>`).join('')}</tr>`;
+  const mkTd = (...vals) => `<tr>${vals.map((v,i)=>`<td style="${i===0?S.td+'font-weight:500;':S.td}">${v||'<span style="color:#ccc">—</span>'}</td>`).join('')}</tr>`;
+  const emptyRow = (n) => `<tr><td colspan="${n}" style="${S.empty}">해당 없음</td></tr>`;
+  const amt = d => d.amount ? `<span style="font-family:'DM Mono',monospace">${Number(d.amount).toLocaleString()}원</span>` : '';
+
+  const sectionTitle = (emoji, title, count, color) =>
+    `<div style="${S.h2}">${emoji} ${title} <span style="${S.badge}background:${color}20;color:${color};">${count}건</span></div>`;
+
+  const paidRows = (list) => list.length
+    ? list.map(d => mkTd(d.hospital, d.doctor, d.manager, amt(d), fmtDate(d.paymentDate))).join('')
+    : emptyRow(5);
+
+  const activeRows = list => list.length
+    ? list.map(d => mkTd(d.hospital, d.doctor, d.manager, amt(d), `<span style="color:#c47f00;font-size:11px;">${statusLabel(d)}</span>`)).join('')
+    : emptyRow(5);
+
+  const paidTable = (list) => `
+    <table style="${S.table}">
+      <thead>${mkTh('병원명','원장님','담당자','금액','입금일')}</thead>
+      <tbody>${paidRows(list)}</tbody>
+    </table>`;
+
+  const html = `
+<div style="${S.wrap}">
+  <p>팀원 여러분, 이번 주 리스 현황 공유드립니다.</p>
+
+  ${sectionTitle('✅','완전 완료 — 입금 + 반환 완료', paidRetDone.length, '#3d6b2f')}
+  ${paidTable(paidRetDone)}
+
+  ${sectionTitle('☑','입금 완료 — 반환 불필요', paidRetNone.length, '#2d6fa3')}
+  ${paidTable(paidRetNone)}
+
+  ${sectionTitle('⏳','입금 완료 — 반환 대기중', paidRetNeed.length, '#c47f00')}
+  ${paidTable(paidRetNeed)}
+
+  ${sectionTitle('🔄','현재 진행중', active.length, '#d94f4f')}
+  <table style="${S.table}">
+    <thead>${mkTh('병원명','원장님','담당자','금액','미완료 항목')}</thead>
+    <tbody>${activeRows(active)}</tbody>
+  </table>
+
+  <div style="${S.footer}">
+    자세한 내용: <a href="https://ladecan.github.io/lease/" style="${S.link}">https://ladecan.github.io/lease/</a>
+  </div>
+</div>`;
+
+  // 클립보드에 HTML로 복사
+  const blob = new Blob([html], { type: 'text/html' });
+  const item = new ClipboardItem({ 'text/html': blob });
+  navigator.clipboard.write([item]).then(() => {
+    // 복사 성공 → 아웃룩 새 메일 열기
+    const subject = encodeURIComponent(`[리스 현황] ${dateStr} 주간 업데이트`);
+    window.open(`mailto:?subject=${subject}`, '_blank');
+    // 버튼 피드백
+    const btn = document.getElementById('btn-email');
+    const orig = btn.textContent;
+    btn.textContent = '✔ 복사됨 — 아웃룩에 붙여넣기';
+    btn.style.background = 'rgba(61,107,47,0.1)';
+    btn.style.borderColor = '#3d6b2f';
+    btn.style.color = '#3d6b2f';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 3000);
+  }).catch(() => {
+    alert('클립보드 복사에 실패했습니다. 브라우저 권한을 확인해주세요.');
   });
-
-  // 입금완료 중 반환 상태별 분류
-  const paidRetDone  = paidThisWeek.filter(d => d.ret === 'done');  // 반환 완료
-  const paidRetNone  = paidThisWeek.filter(d => d.ret === 'none');  // 반환 필요없음
-  const paidRetNeed  = paidThisWeek.filter(d => d.ret === 'need');  // 반환 대기중
-
-  // 진행중 건 (isDone 아닌 것)
-  const active = data.filter(d => !isDone(d));
-
-  const makeTable = (list, lastCol, lastFn) => {
-    if (!list.length) return '  (해당 없음)';
-    const header  = `  병원명\t원장님\t담당자\t금액\t입금일\t${lastCol}`;
-    const divider = '  ' + '-'.repeat(70);
-    const rows = list.map(d =>
-      `  ${d.hospital}\t${d.doctor||'—'}\t${d.manager||'—'}\t${d.amount ? Number(d.amount).toLocaleString()+'원' : '—'}\t${fmtDate(d.paymentDate)}\t${lastFn(d)}`
-    );
-    return [header, divider, ...rows].join('\n');
-  };
-
-  const makeActiveTable = list => {
-    if (!list.length) return '  (해당 없음)';
-    const header  = '  병원명\t원장님\t담당자\t금액\t미완료 항목';
-    const divider = '  ' + '-'.repeat(70);
-    const rows = list.map(d =>
-      `  ${d.hospital}\t${d.doctor||'—'}\t${d.manager||'—'}\t${d.amount ? Number(d.amount).toLocaleString()+'원' : '—'}\t${statusLabel(d)}`
-    );
-    return [header, divider, ...rows].join('\n');
-  };
-
-  const retLabel = d => d.ret === 'done' ? '반환 완료' : d.ret === 'none' ? '반환 필요없음' : '반환 대기중';
-
-  const subject = encodeURIComponent(`[리스 현황] ${dateStr} 주간 업데이트`);
-  const body = encodeURIComponent(
-`팀원 여러분, 이번 주 리스 현황 공유드립니다.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ 완전 완료 — 입금 + 반환 완료 (${paidRetDone.length}건)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${makeTable(paidRetDone, '반환', retLabel)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-☑ 입금 완료 — 반환 필요없음 (${paidRetNone.length}건)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${makeTable(paidRetNone, '반환', retLabel)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏳ 입금 완료 — 반환 대기중 (${paidRetNeed.length}건)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${makeTable(paidRetNeed, '반환', retLabel)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 현재 진행중 (${active.length}건)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${makeActiveTable(active)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-자세한 내용: https://ladecan.github.io/lease/
-
-감사합니다.`
-  );
-
-  window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
 
 document.addEventListener('keydown', e => {
