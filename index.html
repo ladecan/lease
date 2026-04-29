@@ -487,8 +487,8 @@ function sendEmail() {
     `<div style="${S.h2}">${emoji} ${title} <span style="${S.badge}background:${color}20;color:${color};">${count}건</span></div>`;
 
   const paidRows = (list) => list.length
-    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate), d.ret === 'done' ? '반환완료.' : '')).join('')
-    : emptyRow(3);
+    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate))).join('')
+    : emptyRow(2);
 
   const activeRows = list => list.length
     ? list.map(d => mkTd(d.hospital, `<span style="color:#c47f00;font-size:11px;">${statusLabel(d)}</span>`)).join('')
@@ -496,7 +496,7 @@ function sendEmail() {
 
   const paidTable = (list) => `
     <table style="${S.table}">
-      <thead>${mkTh('병원명','입금일','반환')}</thead>
+      <thead>${mkTh('병원명','입금일')}</thead>
       <tbody>${paidRows(list)}</tbody>
     </table>`;
 
@@ -521,8 +521,9 @@ function sendEmail() {
   navigator.clipboard.write([item]).then(() => {
     // 복사 성공 → 아웃룩 새 메일 열기
     const subject = encodeURIComponent(`[리스 현황] ${dateStr} 주간 업데이트`);
-    const to = 'eunpyeongc@candelamedical.com;kates@candelamedical.com';
-    window.open(`mailto:${to}?subject=${subject}`, '_blank');
+    const to = 'CKSalesTeam@candelamedical.com';
+    const cc = 'eunpyeongc@candelamedical.com;kates@candelamedical.com';
+    window.open(`mailto:${to}?cc=${cc}&subject=${subject}`, '_blank');
     // 버튼 피드백
     const btn = document.getElementById('btn-email');
     const orig = btn.textContent;
