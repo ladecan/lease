@@ -225,6 +225,11 @@ function fmtTime(iso) {
   const d = new Date(iso);
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
 function setSyncDot(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot ' + state;
   document.getElementById('sync-label').textContent = label;
@@ -329,7 +334,7 @@ function render() {
         </div></td>
         <td><button class="tog ${d.contract?'on':''}" ${ro?'disabled':''} onclick="toggleBool('${d.id}','contract')">${d.contract?'○':'✕'}</button></td>
         <td><button class="tog ${d.tax?'on':''}"      ${ro?'disabled':''} onclick="toggleBool('${d.id}','tax')">${d.tax?'○':'✕'}</button></td>
-        <td><button class="tog ${d.payment?'on':''}"  ${ro?'disabled':''} onclick="toggleBool('${d.id}','payment')">${d.payment?'○':'✕'}</button></td>
+        <td><button class="tog ${d.payment?'on':''}"  ${ro?'disabled':''} onclick="toggleBool('${d.id}','payment')">${d.payment?'○':'✕'}</button>${d.payment && d.paymentDate ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:'DM Mono',monospace">${fmtDate(d.paymentDate)}</div>` : ''}</td>
         <td><div class="cell-btn-group">
           <button class="cell-btn ${d.ret==='none'?'ao':''}" ${ro?'disabled':''} onclick="setRet('${d.id}','none')" title="필요없음">✕</button>
           <button class="cell-btn ${d.ret==='need'?'av':''}" ${ro?'disabled':''} onclick="setRet('${d.id}','need')" title="반환필요">!</button>
@@ -355,7 +360,12 @@ function setField(id, field, val) {
 }
 function toggleBool(id, field) {
   if (!isAdmin) return;
-  const d = find(id); if (d) { d[field] = !d[field]; cloudSave(); render(); }
+  const d = find(id); if (!d) return;
+  d[field] = !d[field];
+  if (field === 'payment') {
+    d.paymentDate = d[field] ? new Date().toISOString() : null;
+  }
+  cloudSave(); render();
 }
 function setRet(id, val) {
   if (!isAdmin) return;
@@ -410,22 +420,85 @@ function switchTab(tab) {
 }
 
 function sendEmail() {
-  const activeCount = data.filter(d => !isDone(d)).length;
-  const doneCount   = data.filter(d =>  isDone(d)).length;
   const today = new Date();
   const dateStr = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
 
-  const subject = encodeURIComponent(`[리스 현황] ${dateStr} 업데이트`);
+  // 이번 주 월~오늘
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  monday.setHours(0,0,0,0);
+
+  const statusLabel = d => {
+    const missing = [];
+    if (d.order === 'need') missing.push('발주수락서');
+    if (!d.contract) missing.push('계약서');
+    if (!d.tax) missing.push('세금계산서');
+    if (!d.payment) missing.push('입금');
+    return missing.length ? missing.join(', ') : '완료';
+  };
+
+  // 이번주 입금완료 건
+  const paidThisWeek = data.filter(d => {
+    if (!d.payment || !d.paymentDate) return false;
+    return new Date(d.paymentDate) >= monday;
+  });
+
+  // 입금완료 중 반환 상태별 분류
+  const paidRetDone  = paidThisWeek.filter(d => d.ret === 'done');  // 반환 완료
+  const paidRetNone  = paidThisWeek.filter(d => d.ret === 'none');  // 반환 필요없음
+  const paidRetNeed  = paidThisWeek.filter(d => d.ret === 'need');  // 반환 대기중
+
+  // 진행중 건 (isDone 아닌 것)
+  const active = data.filter(d => !isDone(d));
+
+  const makeTable = (list, lastCol, lastFn) => {
+    if (!list.length) return '  (해당 없음)';
+    const header  = `  병원명\t원장님\t담당자\t금액\t입금일\t${lastCol}`;
+    const divider = '  ' + '-'.repeat(70);
+    const rows = list.map(d =>
+      `  ${d.hospital}\t${d.doctor||'—'}\t${d.manager||'—'}\t${d.amount ? Number(d.amount).toLocaleString()+'원' : '—'}\t${fmtDate(d.paymentDate)}\t${lastFn(d)}`
+    );
+    return [header, divider, ...rows].join('\n');
+  };
+
+  const makeActiveTable = list => {
+    if (!list.length) return '  (해당 없음)';
+    const header  = '  병원명\t원장님\t담당자\t금액\t미완료 항목';
+    const divider = '  ' + '-'.repeat(70);
+    const rows = list.map(d =>
+      `  ${d.hospital}\t${d.doctor||'—'}\t${d.manager||'—'}\t${d.amount ? Number(d.amount).toLocaleString()+'원' : '—'}\t${statusLabel(d)}`
+    );
+    return [header, divider, ...rows].join('\n');
+  };
+
+  const retLabel = d => d.ret === 'done' ? '반환 완료' : d.ret === 'none' ? '반환 필요없음' : '반환 대기중';
+
+  const subject = encodeURIComponent(`[리스 현황] ${dateStr} 주간 업데이트`);
   const body = encodeURIComponent(
-`팀원 여러분,
+`팀원 여러분, 이번 주 리스 현황 공유드립니다.
 
-이번 주 리스 관리 현황 공유드립니다.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 완전 완료 — 입금 + 반환 완료 (${paidRetDone.length}건)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${makeTable(paidRetDone, '반환', retLabel)}
 
- • 진행중: ${activeCount}건
- • 완료: ${doneCount}건
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+☑ 입금 완료 — 반환 필요없음 (${paidRetNone.length}건)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${makeTable(paidRetNone, '반환', retLabel)}
 
-자세한 내용은 아래 링크에서 실시간으로 확인하실 수 있습니다.
-👉 https://ladecan.github.io/lease/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏳ 입금 완료 — 반환 대기중 (${paidRetNeed.length}건)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${makeTable(paidRetNeed, '반환', retLabel)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 현재 진행중 (${active.length}건)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${makeActiveTable(active)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+자세한 내용: https://ladecan.github.io/lease/
 
 감사합니다.`
   );
