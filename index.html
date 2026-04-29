@@ -480,20 +480,10 @@ function sendEmail() {
 <div style="${S.wrap}">
   <p>팀원 여러분, 이번 주 리스 현황 공유드립니다.</p>
 
-  ${sectionTitle('✅','완전 완료 — 입금 + 반환 완료', paidRetDone.length, '#3d6b2f')}
-  ${paidTable(paidRetDone)}
-
-  ${sectionTitle('☑','입금 완료 — 반환 불필요', paidRetNone.length, '#2d6fa3')}
-  ${paidTable(paidRetNone)}
-
-  ${sectionTitle('⏳','입금 완료 — 반환 대기중', paidRetNeed.length, '#c47f00')}
-  ${paidTable(paidRetNeed)}
-
-  ${sectionTitle('🔄','현재 진행중', active.length, '#d94f4f')}
-  <table style="${S.table}">
-    <thead>${mkTh('병원명','원장님','담당자','금액','미완료 항목')}</thead>
-    <tbody>${activeRows(active)}</tbody>
-  </table>
+  ${paidRetDone.length ? sectionTitle('✅','완전 완료 — 입금 + 반환 완료', paidRetDone.length, '#3d6b2f') + paidTable(paidRetDone) : ''}
+  ${paidRetNone.length ? sectionTitle('☑','입금 완료 — 반환 불필요', paidRetNone.length, '#2d6fa3') + paidTable(paidRetNone) : ''}
+  ${paidRetNeed.length ? sectionTitle('⏳','입금 완료 — 반환 대기중', paidRetNeed.length, '#c47f00') + paidTable(paidRetNeed) : ''}
+  ${active.length ? `${sectionTitle('🔄','현재 진행중', active.length, '#d94f4f')}<table style="${S.table}"><thead>${mkTh('병원명','원장님','담당자','금액','미완료 항목')}</thead><tbody>${activeRows(active)}</tbody></table>` : ''}
 
   <div style="${S.footer}">
     자세한 내용: <a href="https://ladecan.github.io/lease/" style="${S.link}">https://ladecan.github.io/lease/</a>
