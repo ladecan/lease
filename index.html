@@ -487,7 +487,7 @@ function sendEmail() {
     `<div style="${S.h2}">${emoji} ${title} <span style="${S.badge}background:${color}20;color:${color};">${count}건</span></div>`;
 
   const paidRows = (list) => list.length
-    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate), d.ret === 'done' ? '반환완료.' : '')).join('')
+    ? list.map(d => mkTd(d.hospital, '입금완료', d.ret === 'done' ? '반환완료.' : '')).join('')
     : emptyRow(3);
 
   const activeRows = list => list.length
@@ -496,7 +496,7 @@ function sendEmail() {
 
   const paidTable = (list) => `
     <table style="${S.table}">
-      <thead>${mkTh('병원명','입금일','반환')}</thead>
+      <thead>${mkTh('병원명','입금','반환')}</thead>
       <tbody>${paidRows(list)}</tbody>
     </table>`;
 
