@@ -487,7 +487,7 @@ function sendEmail() {
     `<div style="${S.h2}">${emoji} ${title} <span style="${S.badge}background:${color}20;color:${color};">${count}건</span></div>`;
 
   const paidRows = (list) => list.length
-    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate), d.ret === 'done' ? '반환' : '')).join('')
+    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate), d.ret === 'done' ? '반환완료.' : '')).join('')
     : emptyRow(3);
 
   const activeRows = list => list.length
@@ -502,7 +502,7 @@ function sendEmail() {
 
   const html = `
 <div style="${S.wrap}">
-  <p>안녕하세요 박윤아입니다.<br>금주 리스 진행 상황을 아래처럼 알려드립니다.</p>
+  <p>안녕하세요 박윤아입니다.<br>금주 리스 진행 상황을 아래처럼 공유 드립니다.</p>
 
   ${paidRetDone.length ? sectionTitle('✅','완전 완료 — 입금 + 반환 완료', paidRetDone.length, '#3d6b2f') + paidTable(paidRetDone) : ''}
   ${paidRetNone.length ? sectionTitle('☑','입금 완료 — 반환 불필요', paidRetNone.length, '#2d6fa3') + paidTable(paidRetNone) : ''}
