@@ -386,7 +386,10 @@ function toggleBool(id, field) {
 function setRet(id, val) {
   if (!isAdmin) return;
   const d = find(id); if (!d) return;
-  d.ret = val; cloudSave();
+  d.ret = val;
+  if (val === 'done') d.retDate = new Date().toISOString();
+  else if (val !== 'done') d.retDate = null;
+  cloudSave();
   const nowDone = isDone(d);
   if (nowDone && currentTab === 'active')     { render(); setTimeout(() => switchTab('done'), 250); }
   else if (!nowDone && currentTab === 'done') { render(); setTimeout(() => switchTab('active'), 250); }
@@ -451,7 +454,12 @@ function sendEmail() {
     return missing.length ? missing.join(', ') : '—';
   };
 
-  const paidThisWeek = data.filter(d => d.payment && d.paymentDate && new Date(d.paymentDate) >= monday);
+  const paidThisWeek = data.filter(d => {
+    if (!d.payment) return false;
+    const payedThisWeek = d.paymentDate && new Date(d.paymentDate) >= monday;
+    const retThisWeek   = d.ret === 'done' && d.retDate && new Date(d.retDate) >= monday;
+    return payedThisWeek || retThisWeek;
+  });
   const paidRetDone  = paidThisWeek.filter(d => d.ret === 'done');
   const paidRetNone  = paidThisWeek.filter(d => d.ret === 'none');
   const paidRetNeed  = paidThisWeek.filter(d => d.ret === 'need');
@@ -536,7 +544,7 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search').focus(); }
 });
 
-const VIEW_PW      = 'yuna123';
+const VIEW_PW      = 'can123';
 const PW_COOKIE    = 'lease-auth';
 
 function setCookie(name, val, days) {
