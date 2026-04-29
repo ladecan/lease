@@ -521,7 +521,8 @@ function sendEmail() {
   navigator.clipboard.write([item]).then(() => {
     // 복사 성공 → 아웃룩 새 메일 열기
     const subject = encodeURIComponent(`[리스 현황] ${dateStr} 주간 업데이트`);
-    window.open(`mailto:?subject=${subject}`, '_blank');
+    const to = 'eunpyeongc@candelamedical.com;kates@candelamedical.com';
+    window.open(`mailto:${to}?subject=${subject}`, '_blank');
     // 버튼 피드백
     const btn = document.getElementById('btn-email');
     const orig = btn.textContent;
