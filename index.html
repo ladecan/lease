@@ -487,27 +487,27 @@ function sendEmail() {
     `<div style="${S.h2}">${emoji} ${title} <span style="${S.badge}background:${color}20;color:${color};">${count}건</span></div>`;
 
   const paidRows = (list) => list.length
-    ? list.map(d => mkTd(d.hospital, d.doctor, d.manager, amt(d), fmtDate(d.paymentDate))).join('')
-    : emptyRow(5);
+    ? list.map(d => mkTd(d.hospital, fmtDate(d.paymentDate))).join('')
+    : emptyRow(2);
 
   const activeRows = list => list.length
-    ? list.map(d => mkTd(d.hospital, d.doctor, d.manager, amt(d), `<span style="color:#c47f00;font-size:11px;">${statusLabel(d)}</span>`)).join('')
-    : emptyRow(5);
+    ? list.map(d => mkTd(d.hospital, `<span style="color:#c47f00;font-size:11px;">${statusLabel(d)}</span>`)).join('')
+    : emptyRow(2);
 
   const paidTable = (list) => `
     <table style="${S.table}">
-      <thead>${mkTh('병원명','원장님','담당자','금액','입금일')}</thead>
+      <thead>${mkTh('병원명','입금일')}</thead>
       <tbody>${paidRows(list)}</tbody>
     </table>`;
 
   const html = `
 <div style="${S.wrap}">
-  <p>팀원 여러분, 이번 주 리스 현황 공유드립니다.</p>
+  <p>안녕하세요 박윤아입니다.<br>금주 리스 진행 상황을 아래처럼 보고 드립니다.</p>
 
   ${paidRetDone.length ? sectionTitle('✅','완전 완료 — 입금 + 반환 완료', paidRetDone.length, '#3d6b2f') + paidTable(paidRetDone) : ''}
   ${paidRetNone.length ? sectionTitle('☑','입금 완료 — 반환 불필요', paidRetNone.length, '#2d6fa3') + paidTable(paidRetNone) : ''}
   ${paidRetNeed.length ? sectionTitle('⏳','입금 완료 — 반환 대기중', paidRetNeed.length, '#c47f00') + paidTable(paidRetNeed) : ''}
-  ${active.length ? `${sectionTitle('🔄','현재 진행중', active.length, '#d94f4f')}<table style="${S.table}"><thead>${mkTh('병원명','원장님','담당자','금액','미완료 항목')}</thead><tbody>${activeRows(active)}</tbody></table>` : ''}
+  ${active.length ? `${sectionTitle('🔄','현재 진행중', active.length, '#d94f4f')}<table style="${S.table}"><thead>${mkTh('병원명','미완료 항목')}</thead><tbody>${activeRows(active)}</tbody></table>` : ''}
 
   <div style="${S.footer}">
     자세한 내용: <a href="https://ladecan.github.io/lease/" style="${S.link}">https://ladecan.github.io/lease/</a>
