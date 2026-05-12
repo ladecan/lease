@@ -85,6 +85,8 @@
   .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
   .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
 
+  tbody tr.drag-over { background: rgba(61,107,47,0.08); outline: 2px dashed var(--accent); }
+  tbody tr[draggable="true"] { cursor: grab; }
   .empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
 
   /* Loading */
@@ -315,6 +317,39 @@ async function cloudLoad() {
   }
 }
 
+// ── 드래그 앤 드롭
+let dragSrcId = null;
+
+function onDragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '0.4';
+}
+function onDragEnd(e) {
+  e.currentTarget.style.opacity = '';
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+}
+function onDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  if (id !== dragSrcId) e.currentTarget.classList.add('drag-over');
+}
+function onDrop(e, targetId) {
+  e.preventDefault();
+  if (!dragSrcId || dragSrcId === targetId) return;
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+
+  const srcIdx = data.findIndex(x => x.id === dragSrcId);
+  const tgtIdx = data.findIndex(x => x.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  const [item] = data.splice(srcIdx, 1);
+  data.splice(tgtIdx, 0, item);
+  cloudSave();
+  render();
+}
+
 // ── 렌더
 function render() {
   const query = document.getElementById('search').value.trim().toLowerCase();
@@ -337,8 +372,8 @@ function render() {
   } else {
     empty.style.display = 'none';
     tbody.innerHTML = filtered.map((d, i) => `
-      <tr>
-        <td><span class="row-num">${i+1}</span></td>
+      <tr ${isAdmin ? `draggable="true" ondragstart="onDragStart(event,'${d.id}')" ondragend="onDragEnd(event)" ondragover="onDragOver(event,'${d.id}')" ondrop="onDrop(event,'${d.id}')"` : ''}>
+        <td><span class="row-num">${isAdmin ? `<span style="cursor:grab;color:var(--text-dim);font-size:14px;user-select:none">⠿</span>` : i+1}</span></td>
         <td class="left"><div class="hospital-name">${esc(d.hospital)}</div></td>
         <td class="left"><div class="sub-name">${esc(d.doctor)||'<span style="color:var(--text-dim)">—</span>'}</div></td>
         <td class="left"><div class="sub-name">${esc(d.manager)||'<span style="color:var(--text-dim)">—</span>'}</div></td>
